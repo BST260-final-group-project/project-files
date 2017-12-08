@@ -1,0 +1,107 @@
+---
+title: "Stepwise"
+author: "CHI ZHANG"
+date: "12/7/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(dplyr)
+library(readr)
+dat_scaled_onehot <- read_csv("~/Desktop/feature_fillna_scaled_onehot.csv")
+dat_scale_small <- dat_scaled_onehot %>% filter(source=="train")
+#Stepwise using scaled data
+drop <- c("Id","SalePrice","source")
+dat_scale_small1 = dat_scale_small[,!(names(dat_scale_small) %in% drop)]
+
+BadNames <-  c(FirstFlrSF = "1stFlrSF", SecondFlrSF = "2ndFlrSF", ThreeSsnPorch = "3SsnPorch")
+
+for (i in 1:length(BadNames)) {
+  colnames(dat_scale_small)[which(colnames(dat_scale_small) == BadNames[i])] = names(BadNames[i])
+}
+
+for (i in 1:length(BadNames)) {
+  colnames(dat_scale_small1)[which(colnames(dat_scale_small1) == BadNames[i])] = names(BadNames[i])
+}
+
+f <- as.formula(paste('SalePrice ~', paste(colnames(dat_scale_small1), collapse='+')))
+
+step1 <- step(lm(SalePrice ~ 1, data = dat_scale_small), ~HeatingQC + KitchenAbvGr + KitchenQual + LotArea + 
+    LotFrontage + LowQualFinSF + MasVnrArea + MiscVal + ExterCond + 
+    ExterQual + Fence + FireplaceQu + Fireplaces + Functional + 
+    GarageArea + GarageFinish + GarageQual + GarageYrBlt + GrLivArea + 
+    Bath + FirstFlrSF + SecondFlrSF + ThreeSsnPorch + BedroomAbvGr + 
+    BsmtCond + BsmtExposure + BsmtFinSF1 + BsmtFinSF2 + BsmtFinType1 + 
+    BsmtFinType2 + BsmtFullBath + BsmtHalfBath + BsmtQual + BsmtUnfSF + 
+    OpenPorchSF + OverallCond + OverallQual + PavedDrive + PoolArea + 
+    ScreenPorch + TotRmsAbvGrd + TotalBsmtSF + WoodDeckSF + YearBuilt + 
+    YearRemodAdd + YrSold + Heating_Floor + Heating_GasA + Heating_GasW + 
+    Heating_Grav + Heating_OthW + Heating_Wall + HouseStyle_1.5Fin + 
+    HouseStyle_1.5Unf + HouseStyle_1Story + HouseStyle_2.5Fin + 
+    HouseStyle_2.5Unf + HouseStyle_2Story + HouseStyle_SFoyer + 
+    HouseStyle_SLvl + LandContour_Bnk + LandContour_HLS + LandContour_Low + 
+    LandContour_Lvl + LandSlope_Gtl + LandSlope_Mod + LandSlope_Sev + 
+    LotConfig_Corner + LotConfig_CulDSac + LotConfig_FR2 + LotConfig_FR3 + 
+    LotConfig_Inside + LotShape_IR1 + LotShape_IR2 + LotShape_IR3 + 
+    LotShape_Reg + MSSubClass_120 + MSSubClass_150 + MSSubClass_160 + 
+    MSSubClass_180 + MSSubClass_190 + MSSubClass_20 + MSSubClass_30 + 
+    MSSubClass_40 + MSSubClass_45 + MSSubClass_50 + MSSubClass_60 + 
+    MSSubClass_70 + MSSubClass_75 + MSSubClass_80 + MSSubClass_85 + 
+    MSSubClass_90 + MSZoning_C_all + MSZoning_FV + MSZoning_RH + 
+    MSZoning_RL + MSZoning_RM + MasVnrType_BrkCmn + MasVnrType_BrkFace + 
+    MasVnrType_None + MasVnrType_Stone + MiscFeature_Gar2 + MiscFeature_Othr + 
+    MiscFeature_Shed + MiscFeature_TenC + MiscFeature_none + 
+    MoSold_1 + MoSold_10 + MoSold_11 + MoSold_12 + MoSold_2 + 
+    MoSold_3 + MoSold_4 + MoSold_5 + MoSold_6 + MoSold_7 + MoSold_8 + 
+    MoSold_9 + Neighborhood_Blmngtn + Neighborhood_Blueste + 
+    Neighborhood_BrDale + Neighborhood_BrkSide + Neighborhood_ClearCr + 
+    Neighborhood_CollgCr + Neighborhood_Crawfor + Neighborhood_Edwards + 
+    Neighborhood_Gilbert + Neighborhood_IDOTRR + Neighborhood_MeadowV + 
+    Neighborhood_Mitchel + Neighborhood_NAmes + Neighborhood_NPkVill + 
+    Neighborhood_NWAmes + Neighborhood_NoRidge + Neighborhood_NridgHt + 
+    Neighborhood_OldTown + Neighborhood_SWISU + Neighborhood_Sawyer + 
+    Neighborhood_SawyerW + Neighborhood_Somerst + Neighborhood_StoneBr + 
+    Neighborhood_Timber + Neighborhood_Veenker + Exterior1st_AsbShng + 
+    Exterior1st_AsphShn + Exterior1st_BrkComm + Exterior1st_BrkFace + 
+    Exterior1st_CBlock + Exterior1st_CemntBd + Exterior1st_HdBoard + 
+    Exterior1st_ImStucc + Exterior1st_MetalSd + Exterior1st_Other + 
+    Exterior1st_Plywood + Exterior1st_Stone + Exterior1st_Stucco + 
+    Exterior1st_VinylSd + Exterior1st_WdSdng + Exterior1st_WdShing + 
+    Exterior2nd_AsbShng + Exterior2nd_AsphShn + Exterior2nd_BrkCmn + 
+    Exterior2nd_BrkFace + Exterior2nd_CBlock + Exterior2nd_CmentBd + 
+    Exterior2nd_HdBoard + Exterior2nd_ImStucc + Exterior2nd_MetalSd + 
+    Exterior2nd_Other + Exterior2nd_Plywood + Exterior2nd_Stone + 
+    Exterior2nd_Stucco + Exterior2nd_VinylSd + Exterior2nd_WdSdng + 
+    Exterior2nd_WdShng + Foundation_BrkTil + Foundation_CBlock + 
+    Foundation_PConc + Foundation_Slab + Foundation_Stone + Foundation_Wood + 
+    GarageType_2Types + GarageType_Attchd + GarageType_Basment + 
+    GarageType_BuiltIn + GarageType_CarPort + GarageType_Detchd + 
+    GarageType_NoGarage + Alley_Grvl + Alley_None + Alley_Pave + 
+    BldgType_1Fam + BldgType_2fmCon + BldgType_Duplex + BldgType_Twnhs + 
+    BldgType_TwnhsE + CentralAir_N + CentralAir_Y + Condition1_Artery + 
+    Condition1_Feedr + Condition1_Norm + Condition1_PosA + Condition1_PosN + 
+    Condition1_RRAe + Condition1_RRAn + Condition1_RRNe + Condition1_RRNn + 
+    Condition2_Artery + Condition2_Feedr + Condition2_Norm + 
+    Condition2_PosA + Condition2_PosN + Condition2_RRAe + Condition2_RRAn + 
+    Condition2_RRNn + Electrical_FuseA + Electrical_FuseF + Electrical_FuseP + 
+    Electrical_Mix + Electrical_SBrkr + PoolQC_Good + PoolQC_None + 
+    RoofMatl_ClyTile + RoofMatl_CompShg + RoofMatl_Membran + 
+    RoofMatl_Metal + RoofMatl_Roll + RoofMatl_TarGrv + RoofMatl_WdShake + 
+    RoofMatl_WdShngl + RoofStyle_Flat + RoofStyle_Gable + RoofStyle_Gambrel + 
+    RoofStyle_Hip + RoofStyle_Mansard + RoofStyle_Shed + SaleType_COD + 
+    SaleType_CWD + SaleType_Con + SaleType_ConLD + SaleType_ConLI + 
+    SaleType_ConLw + SaleType_New + SaleType_Oth + SaleType_WD + 
+    Street_Grvl + Street_Pave + Utilities_AllPub + Utilities_NoSeWa, direction = "both")
+```
+
+This is the detailed stepwise regression model selection process and the final best model according to the samllest AIC=29586.54, as we can see in the output, each regression selection process, the stepwise process allow us not only remove variables from our previous model, but also add back in variables that we had previously eliminated from our model. Thus, stepwise regession can provide us the result that thinking all of the variables in each selection process, which should be a more reasonable result. 
