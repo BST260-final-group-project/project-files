@@ -1,7 +1,7 @@
 ---
-title: "BST260 Document"
+title: "House Price Prediction"
 author: "Jian Kang, Chi Zhang, Hanyu Jiang, Jiajing Chen"
-date: "11/28/2017"
+date: "12/08/2017"
 output: html_document
 ---
 
@@ -20,29 +20,41 @@ Our object is to discuss the major factors that affect housing price and make pr
 
 #### 2.1 Stepwise Selection
 Stepwise Selection combines elements of both forward selection and backward elimination, allow us either to remove covariates from our previous model or add back in covariates that we had previously eliminated from our model, and in this sense, giving us chances to consider all possible subsets of the pool of explanatory variables and find the model that best fits the data according to some prespecified criterion, such as AIC(Akaike Information Criterion), BIC(Bayesian Information Criterion), and adjusted R2.
-(Jennrich, Robert I. "Stepwise regression." Statistical methods for digital computers 3 (1977): 58-75.)
+
+Reference: Jennrich, Robert I. "Stepwise regression." Statistical methods for digital computers 3 (1977): 58-75.
 
 #### 2.2 LOWESS
-LOWESS (Locally Weighted Scatterplot Smoothing), or LOESS (Locally Weighted Smoothing), is often applied in regression analysis that creates a smooth line through a scatter plot. It is especially helpful when detecting nonlinear relationship between variables and predicting trends. In our study, LOWESS was first used to detect potential nonlinear associations between variables and sale prices. Since it performed the best results compared to other smoothing methods,  we then used it to predict prices after PCA preprocessing. (Cleveland, William S. "LOWESS: A program for smoothing scatterplots by robust locally weighted regression." The American Statistician 35.1 (1981): 54-54.)
+LOWESS (Locally Weighted Scatterplot Smoothing), or LOESS (Locally Weighted Smoothing), is often applied in regression analysis that creates a smooth line through a scatter plot. It is especially helpful when detecting nonlinear relationship between variables and predicting trends. In our study, LOWESS was first used to detect potential nonlinear associations between variables and sale prices. Since it performed the best results compared to other smoothing methods,  we then used it to predict prices after PCA preprocessing. 
+
+Reference: Cleveland, William S. "LOWESS: A program for smoothing scatterplots by robust locally weighted regression." The American Statistician 35.1 (1981): 54-54.
 
 #### 2.3 PCA
 PCA (Principal Component Analysis) is a statistical procedure that uses an orthogonal transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal components [1].
 As mentioned in class, we can’t estimate the estimators of a high-dimensional nonlinear model via lm function. So we applied PCA to estimate predictors by minimizing  the squared error of the approximation.
-(Abdi, H. and Williams, L.J., 2010. Principal component analysis. Wiley interdisciplinary reviews: computational statistics, 2(4), pp.433-459.)
+
+Reference: Abdi, H. and Williams, L.J., 2010. Principal component analysis. Wiley interdisciplinary reviews: computational statistics, 2(4), pp.433-459.
 
 #### 2.4 Lasso Regression
-Lasso (Least Absolute Shrinkage and Selection Operator) regression is a regularized linear regression. It uses L1 norm to constrain the coefficients of the fitting model. Usually, some coefficients will be set to 0 under the constrain. Therefore, the lasso regression is more robust compared to ordinary linear regression. (Tibshirani, Robert. "Regression shrinkage and selection via the lasso." Journal of the Royal Statistical Society. Series B (Methodological) (1996): 267-288.2)
+Lasso (Least Absolute Shrinkage and Selection Operator) regression is a regularized linear regression. It uses L1 norm to constrain the coefficients of the fitting model. Usually, some coefficients will be set to 0 under the constrain. Therefore, the lasso regression is more robust compared to ordinary linear regression. 
+
+Reference: Tibshirani, Robert. "Regression shrinkage and selection via the lasso." Journal of the Royal Statistical Society. Series B (Methodological) (1996): 267-288.2
 
 #### 2.5 Random Forest
-Random forest is an ensembling machine learning method basing on classification tree or regression tree. In general, random forest will generate many decision trees and average their predictions to make the final prediction. When generating each decision tree, the random forest will use a subset of all features, which avoids the overfitting problem. (Liaw, Andy, and Matthew Wiener. "Classification and regression by randomForest." R news 2.3 (2002): 18-22.)
+Random forest is an ensembling machine learning method basing on classification tree or regression tree. In general, random forest will generate many decision trees and average their predictions to make the final prediction. When generating each decision tree, the random forest will use a subset of all features, which avoids the overfitting problem. 
+
+Reference: Liaw, Andy, and Matthew Wiener. "Classification and regression by randomForest." R news 2.3 (2002): 18-22.
 
 #### 2.6 Gradient Boosting
 
-Similar to random forest, gradient boosting is another ensembling machine learning method basing on classification tree or regression tree. While in random forest every tree is weighted the same, every tree in gradient boosting tries to minimize the error between target and trees built previously. Gradient boosting is now a popular machine learning framework for both academia and industry. (Friedman, Jerome H. "Greedy function approximation: a gradient boosting machine." Annals of statistics (2001): 1189-1232.)
+Similar to random forest, gradient boosting is another ensembling machine learning method basing on classification tree or regression tree. While in random forest every tree is weighted the same, every tree in gradient boosting tries to minimize the error between target and trees built previously. Gradient boosting is now a popular machine learning framework for both academia and industry. 
+
+Reference: Friedman, Jerome H. "Greedy function approximation: a gradient boosting machine." Annals of statistics (2001): 1189-1232.
 
 #### 2.7 Ensemble Learning
 
-Ensemble learning combines multiple statistical and machine learning algorithms together to achieve better predictive performance than any algorithm alone, because the errors in each model may cancel out in the ensembled model. In our project, we will try to ensemble the regression techniques we use (e.g. lasso regression, gradient boosting), to predict the sale prices and compare the ensembled model with other models.(Dietterich, Thomas G. "Ensemble learning." The handbook of brain theory and neural networks 2 (2002): 110-125.)
+Ensemble learning combines multiple statistical and machine learning algorithms together to achieve better predictive performance than any algorithm alone, because the errors in each model may cancel out in the ensembled model. In our project, we will try to ensemble the regression techniques we use (e.g. lasso regression, gradient boosting), to predict the sale prices and compare the ensembled model with other models.
+
+Reference: Dietterich, Thomas G. "Ensemble learning." The handbook of brain theory and neural networks 2 (2002): 110-125.
 
 In our project, we just simply stack several models, i.e. average their predictions to make our final prediction.
 
@@ -70,6 +82,8 @@ where $y_i$ is the true house price and $\hat{y_i}$ is our prediction of the hou
 Our project derived from a Kaggle problem, and data was downloaded from the website: https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data. 
 
 #### 4.2 Data Cleaning
+
+Code can be found on: https://github.com/BST260-final-group-project/project-files/tree/master/data-cleaning
 
 Numbers of missing values for each features are as follows. We don't show the features without missing values.
 ```{r, message=FALSE, echo=FALSE}
@@ -185,7 +199,7 @@ In general, the newer the house is, the higher the price is. But the correlation
 
 #### 5.4 Correlation Matrix
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(readr)
 dat_scaled_onehot <- read_csv("./feature_fillna_scaled_onehot.csv")
@@ -215,7 +229,7 @@ We also run PCA on our data sets. PC1 and PC2 represent 1st principal component 
 #### 5.6 Ordinary Linear Regression
 
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #Stepwise using scaled data
 drop <- c("Id","SalePrice","source")
 dat_scale_small1 = dat_scale_small[,!(names(dat_scale_small) %in% drop)]
@@ -262,7 +276,7 @@ summary(modf)
 plot(modf)
 ```
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(packcircles)
 library(ggplot2)
  
@@ -292,13 +306,13 @@ We can easily find that housing price realted a lot of factors,some of these fac
 
 Using Stepwise regression helps us find the model that best fits the data according to some prespecified criterion, such as AIC(Akaike Information Criterion), BIC(Bayesian Information Criterion), and adjusted R2. 
 
-The detailed stepwise regression model selection process is too lengthy thus we only show the final result here. The final best model according to the samllest AIC=29586.54, as we can see in the output, each regression selection process, the stepwise process allow us not only remove variables from our previous model, but also add back in variables that we had previously eliminated from our model. Thus, stepwise regession can provide us the result that thinking all of the variables in each selection process, which should be a more reasonable result.
+The detailed stepwise regression model selection process is too lengthy (code: https://github.com/BST260-final-group-project/project-files/tree/master/exploratory-analysis) thus we only show the final result here. The final best model according to the samllest AIC=29586.54, as we can see in the output, each regression selection process, the stepwise process allow us not only remove variables from our previous model, but also add back in variables that we had previously eliminated from our model. Thus, stepwise regession can provide us the result that thinking all of the variables in each selection process, which should be a more reasonable result.
 
 #### 5.8 Lasso Regression
 
 To get some intuition about the features, we do not scale the values of each feature, which makes the result easier to interprete. The result of lasso regression on non-scale data is as follows. We also show the cofficients of lasso regression under the optimal parameter.
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # Lasso library
 library(assertive, warn.conflicts = FALSE)
 library(glmnet)
@@ -369,9 +383,9 @@ $$
 
 #### 6.1 Basic Models
 
-We use 5-fold cross validation to see how each model performs. (Code is on: https://github.com/BST260-final-group-project/04-Machine-Learning-Prediction/tree/HYJiang) 
+Code can be found on: https://github.com/BST260-final-group-project/project-files/tree/master/final-analysis
 
-Each model's RMSEs in cross validation (CV) and in leaderboard (LB) are as follows:
+We use 5-fold cross validation to evaluate how each model performs. Each model's RMSEs in cross validation (CV) and in leaderboard (LB) are as follows:
 
 ```{r, message=FALSE, echo=FALSE}
 library(dplyr)
