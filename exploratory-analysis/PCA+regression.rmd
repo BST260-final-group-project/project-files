@@ -1,0 +1,145 @@
+---
+title: "260Proj"
+author: "Jian Kang"
+date: "11/2/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Prediction
+```{r}
+library(caret)
+library(plyr)
+library(xgboost)
+library(Metrics)
+```
+
+
+```{r}
+RMSE <- function(true_ratings, predicted_ratings){
+    sqrt(mean((true_ratings - predicted_ratings)^2))
+}
+
+id_outliers = c(524, 1299, 1183, 692)
+
+library(caret)
+set.seed(260)
+idx = createDataPartition(1:1456, p = .8, list = F)
+
+trainla = fillna_train[!"Id" %in% id_outliers, !colnames(fillna_train) %in% c("Id", "SalePrice")]
+
+#remove coloumns with single value
+uniquelength <- sapply(trainla,function(x) length(unique(x)))
+trainhot <- subset(trainhot, select=uniquelength>1)
+
+#trainla_sub = trainla[idx,]
+#validla = trainla[-idx,]
+#Used for test RMSE
+```
+
+
+### PCA1
+```{r}
+library(caret)
+library(pls)
+fitPCA1 <- train(logPrice ~ ., 
+                 data = train, 
+                 method = 'pcr', 
+                 trControl = trainControl(method = "cv", number = 5))
+testPCA1 <- fillna_test
+testPCA1$SalePrice <- exp(predict(fitPCA1, newdata = fillna_test))
+testPCA1 <- testPCA1 %>%
+  select(Id, SalePrice)
+write.csv(testPCA1, "PCA1.csv")
+```
+
+
+### PCA2
+```{r}
+ctrl <- trainControl(method = "repeatedcv", 
+                     repeats = 3)#or list(pcaComp = 7))
+
+fitPCA2 <- train(logPrice ~ ., 
+                 data = train, 
+                 method = "lm", 
+                 metric = "RMSE",  
+                 preProcess=c("center","scale", "pca"), 
+                 trControl = ctrl)
+
+testPCA2 <- fillna_test
+testPCA2$SalePrice <- exp(predict(fitPCA2, newdata = fillna_test))
+testPCA2 <- testPCA2 %>%
+  select(Id, SalePrice)
+write.csv(testPCA2, "PCA2.csv")
+```
+
+
+### PCA + LOESS
+```{r}
+library(gam)
+fitloe <- train(logPrice ~ ., 
+                 data = train, 
+                 method = "gamLoess", 
+                 metric = "RMSE",  
+                 preProcess=c("center","scale", "pca"), 
+                 trControl = ctrl)
+
+testloe <- fillna_test
+testloe$SalePrice <- exp(predict(fitloe, newdata = fillna_test))
+testloe <- testloe %>%
+  select(Id, SalePrice)
+write.csv(testloe, "loe.csv")
+```
+
+### Penalized Linear Regression
+
+```{r}
+library(penalized)
+fitpen <- train(logPrice ~ ., 
+                 data = train, 
+                 method = "penalized", 
+                 metric = "RMSE",  
+                 trControl = ctrl)
+
+testpen <- fillna_test
+testpen$SalePrice <- exp(predict(fitpen, newdata = fillna_test))
+testpen <- testpen %>%
+  select(Id, SalePrice)
+write.csv(testpen, "pen.csv")
+## R breaks down
+```
+
+### Lasso
+```{r}
+fitla <- train(logPrice ~ ., 
+                 data = train, 
+                 method = "lasso", 
+                 metric = "RMSE",  
+                 trControl = ctrl)
+
+testla <- fillna_test
+testla$SalePrice <- exp(predict(fitla, newdata = fillna_test))
+testla <- testla %>%
+  select(Id, SalePrice)
+write.csv(testla, "la.csv")
+```
+
+
+
+## Cluster -- h2o
+```{r}
+library(h2o)
+h2o.init()
+
+train1 <- feature_train[idx, ]
+test1 <- feature_train[-idx, ]
+train1_to_h20 <- as.h2o(train1, destination_frame = "train_260")
+test1_to_h20 <- as.h2o(test1, destination_frame = "test_260")
+
+# h2o GUI was applied.
+```
+
