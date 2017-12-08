@@ -176,7 +176,7 @@ data_train %>% ggplot(aes(x=as.factor(OverallQual), y=SalePrice)) +
   ylab("Sale Price")
 ```
 
-Conincided with our intuition, if the overall quality of the house is better, then the house price is higher.
+Consistent with our intuition, if the overall quality of the house is better, then the house price is higher.
 
 #### 5.3 Year vs Price
 ```{r, echo=FALSE}
@@ -219,14 +219,25 @@ corrplot(as.matrix(correlations[corr.idx,corr.idx]), type = 'upper', method='col
 
 In this part, to show correlation coefficients between sets of variables in our dataset, we used correlation matrix and then graphiclly display that through corrplot function. From the above correlogram, we can easily learn that saleprice have strong positive correlation with some factors such as overallquality(0.79), GrLiveArea(Above grade (ground) living area square feet)(0.71), ExterQual(the quality of the material on the exterior)(0.68). This correlogram can give some basic information about the relationship between variables and saleprice, which we need to predict in the future. 
 
-#### 5.5 PCA
+#### 5.5 Visualization of Correlation
+
+![](./EDA_JJC_1.png){width=80%}
+![](./EDA_JJC_2.png){width=80%}
+![](./EDA_JJC_3.png){width=80%}
+![](./EDA_JJC_4.png){width=80%}
+![](./EDA_JJC_5.png){width=80%}
+![](./EDA_JJC_6.png){width=80%}
+
+Here we use the R package tabplots to find strong-related variables to “Saleprice” among 79 variables, which would further help us do feature selection and engineering.Of all numeric variables, Variables strongly correlated with hourse price (SalePrice) are: OverallQual, YearBuilt, YearRemodAdd, MasvnrArea, BsmtFinSF1, TotalBsmtSF, 1stFlrSF, GrLiveArea, FullBath, TotRmsAbvGrd, FirePlaces, GarageYrBlt, GarageCars, GarageArea, WoodDeskSF and OpenPorchSF, which is consistent with our findings in the headmap of correlations between variables.
+
+#### 5.6 PCA
 ![PCA Variance](./PCA_variance.png){width=80%}
 
 ![PCA Result (PC1 + PC2)](./PCA.png){width=80%}
 
 We also run PCA on our data sets. PC1 and PC2 represent 1st principal component and 2ed principal component. Top 50 features with the most meaningful effects were chosen in the plot, where distances between covariates suggest their degrees of correlation. We can see some patterns in the projection plot: garage condition is correlated with garage quality; fireplace is correlated with wood deck area.
 
-#### 5.6 Ordinary Linear Regression
+#### 5.7 Ordinary Linear Regression
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -302,13 +313,13 @@ ggplot() +
 We can easily find that housing price realted a lot of factors,some of these factors are listed in the circle above. To be specific, overall quality increase 1, the house price would increase 8762, and when GrLiveArea(Above grade (ground) living area square feet) increase 1, the housing price would increase a lot, which can be 58249; on the other hand, when the house near the rail road, the housing price will decrease 11403, these all meet our intuitive knowledge. 
 
 
-#### 5.7 Stepwise Regression
+#### 5.8 Stepwise Regression
 
 Using Stepwise regression helps us find the model that best fits the data according to some prespecified criterion, such as AIC(Akaike Information Criterion), BIC(Bayesian Information Criterion), and adjusted R2. 
 
 The detailed stepwise regression model selection process is too lengthy (code: https://github.com/BST260-final-group-project/project-files/tree/master/exploratory-analysis) thus we only show the final result here. The final best model according to the samllest AIC=29586.54, as we can see in the output, each regression selection process, the stepwise process allow us not only remove variables from our previous model, but also add back in variables that we had previously eliminated from our model. Thus, stepwise regession can provide us the result that thinking all of the variables in each selection process, which should be a more reasonable result.
 
-#### 5.8 Lasso Regression
+#### 5.9 Lasso Regression
 
 To get some intuition about the features, we do not scale the values of each feature, which makes the result easier to interprete. The result of lasso regression on non-scale data is as follows. We also show the cofficients of lasso regression under the optimal parameter.
 
@@ -355,12 +366,12 @@ coef(cvfit, s = "lambda.min")
 Based on the result of lasso regression, we can know the average price for some house components. A fire place is worth 3000 dollars while a full bath only costs us 130 dollars (the price of bathroom is a little weired). The coefficient of RoofMatl_ClyTile is -527,000, which means that house would be super cheap if its roof material is clay tile. The lasso also tells us that it doesn't matter in which month you sell your house in the year.
 
 
-#### 5.9 Random Forest
+#### 5.10 Random Forest
 ![Random Forest](./random-forest.png){width=80%}
 
 The result was obtained from random forest method based on H2o cluster. Variables are ranked according to their importance when predicting the house sale prices. Among them, Rates the overall material and finish of the house, Evaluates the quality of the material on the exterior, and Size of garage in car capacity are the most meaningful factors.
 
-#### 5.10 Gradient Boosting
+#### 5.11 Gradient Boosting
 
 ![Gradient Boosting](./xgboost.png){width=80%}
 
