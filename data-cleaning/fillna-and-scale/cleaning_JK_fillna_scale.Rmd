@@ -1,0 +1,169 @@
+---
+title: "cleaning2"
+author: "Jian Kang"
+date: "11/15/2017"
+output: html_document
+---
+
+Need transform:
+Exterior1st
+Exterior2nd
+Foundation
+GarageType
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Import data
+```{r}
+library(readr)
+feature_KJ_2 <- read_csv("feature_KJ_1copy.csv")
+feature_KJ_2 <- feature_KJ_2[, -1]
+```
+
+
+### EnclosedPorch
+**Enclosed porch area in square feet**
+- 2460 (84.3%) == 0
+- Removed
+```{r}
+feature_KJ_2 <- feature_KJ_2[, -4]
+```
+
+
+### ExterCond
+**Evaluates the present condition of the material on the exterior**
+- No NA
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### ExterQual
+**Evaluates the quality of the material on the exterior**
+- No NA
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### Exterior1st
+**Exterior covering on house**
+- Catergorical, need transform
+- 1 NA: "Other"
+
+
+### Exterior2nd
+**Exterior covering on house (if more than one material)**
+- Catergorical, need transform
+- 1 NA: "Other"
+
+
+### Fence
+**Fence quality**
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### FireplaceQu
+**Fireplace quality**
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### Fireplaces
+**Number of fireplaces**
+- No NA
+- Ordinal: 0, 1, 2, 3, 4
+
+
+### Foundation
+**Type of foundation**
+- No NA
+- Categorical -- need transform
+
+
+### FullBath
+**Full bathrooms above grade**
+- No NA
+- Ordinal: 0, 1, 2, 3, 4
+
+### HalfBath
+**Half baths above grade**
+- No NA
+- Ordinal: 0, 1, 2
+
+#### Combined
+#### "Bath = FullBath + 0.5*HalfBath"
+```{r}
+feature_KJ_2$Bath = feature_KJ_2$FullBath + 0.5*feature_KJ_2$HalfBath
+feature_KJ_2 <- feature_KJ_2[ , !names(feature_KJ_2) %in% c("FullBath","HalfBath")]
+```
+
+
+### Functional
+**Home functionality (Assume typical unless deductions are warranted)**
+- 2 NA: mode (median)
+- Ordinal: 0, 1, 2, 3, 4, 5, 6, 7
+
+
+### GarageArea
+**Size of garage in square feet**
+- 1 NA: median
+- Standardized
+
+```{r}
+feature_KJ_2$GarageArea = scale(feature_KJ$GarageArea)
+```
+
+### GarageCars
+**Size of garage in car capacity**
+- 1 NA: median
+- Removed, and keep "GarageArea" instead.
+```{r}
+feature_KJ_2 <- feature_KJ_2[, -14]
+```
+
+
+### GarageCond
+**Garage condition**
+- Removed, and keep "GarageQual" instead.
+```{r}
+feature_KJ_2 <- feature_KJ_2[, -14]
+```
+
+### GarageFinish
+**Interior finish of the garage**
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### GarageQual
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### GarageType
+**Garage location**
+- Categorical (not ordinal by plot)
+- Need transformation
+
+
+### GarageYrBlt
+**Year garage was built**
+- 159 NA: Min-1 = 1894
+- One outlier: 2207! Maybe a typo for "2007" ("YearBuilt" = 2006)
+- 
+
+### GrLivArea
+**Above grade (ground) living area square feet**
+- No NA
+- Standardized
+```{r}
+feature_KJ_2$GrLivArea = scale(feature_KJ$GrLivArea)
+```
+

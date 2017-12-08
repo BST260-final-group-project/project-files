@@ -1,0 +1,152 @@
+---
+title: "Project1"
+author: "CHI ZHANG"
+date: "11/15/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+1.check missing value in my data set 
+```{r}
+na.cols <- which(colSums(is.na(feature_CZ)) > 0)
+sort(colSums(sapply(feature_CZ[na.cols], is.na)), decreasing = TRUE)
+```
+
+2. Although numeric, MSSubClass stands for categorical, and MoSold should be treated as catergorical as well. 
+
+3.MiscFeature: Miscellaneous feature not covered in other categories 
+2814(96.4%) missing value, may delete or change to "Shed", because the one with MiscFeature are only Shed, also delete the same to deal with "Misval"
+
+```{r}
+feature_CZ$MiscFeature[is.na(feature_CZ$MiscFeature)] <- rep('none', 2814)
+feature_CZ_1$MiscFeature[is.na(feature_CZ_1$MiscFeature)] <- rep('none', 2814)
+feature_CZ_2$MiscFeature[is.na(feature_CZ_2$MiscFeature)] <- rep('none', 2814)
+```
+
+4. HeatingQual
+
+```{r}
+feature_CZ_1$HeatingQC[feature_CZ_1$HeatingQC == "Ex"] <- 4
+feature_CZ_1$HeatingQC[feature_CZ_1$HeatingQC == "Gd"] <- 3
+feature_CZ_1$HeatingQC[feature_CZ_1$HeatingQC == "TA"] <- 2
+feature_CZ_1$HeatingQC[feature_CZ_1$HeatingQC == "Fa"] <- 1
+feature_CZ_1$HeatingQC[feature_CZ_1$HeatingQC == "Po"] <- 0
+feature_CZ_1$HeatingQC <- as.numeric(feature_CZ_1$HeatingQC)
+
+feature_CZ_2$HeatingQC[feature_CZ_2$HeatingQC == "Ex"] <- 4
+feature_CZ_2$HeatingQC[feature_CZ_2$HeatingQC == "Gd"] <- 3
+feature_CZ_2$HeatingQC[feature_CZ_2$HeatingQC == "TA"] <- 2
+feature_CZ_2$HeatingQC[feature_CZ_2$HeatingQC == "Fa"] <- 1
+feature_CZ_2$HeatingQC[feature_CZ_2$HeatingQC == "Po"] <- 0
+feature_CZ_2$HeatingQC <- as.numeric(feature_CZ_2$HeatingQC)
+```
+
+5.KitchenQual:missing value From test: #1556, estimate in TA, and then transform into numeric
+
+```{r}
+feature_CZ$KitchenQual[1556] = 'missing'
+feature_CZ_1$KitchenQual[1556] = 'TA'
+feature_CZ_1$KitchenQual[feature_CZ_1$KitchenQual == "Ex"] <- 3
+feature_CZ_1$KitchenQual[feature_CZ_1$KitchenQual == "Gd"] <- 2
+feature_CZ_1$KitchenQual[feature_CZ_1$KitchenQual == "TA"] <- 1
+feature_CZ_1$KitchenQual[feature_CZ_1$KitchenQual == "Fa"] <- 0
+feature_CZ_1$KitchenQual <- as.numeric(feature_CZ_1$KitchenQual)
+
+feature_CZ_2$KitchenQual[1556] = 'TA'
+feature_CZ_2$KitchenQual[feature_CZ_2$KitchenQual == "Ex"] <- 3
+feature_CZ_2$KitchenQual[feature_CZ_2$KitchenQual == "Gd"] <- 2
+feature_CZ_2$KitchenQual[feature_CZ_2$KitchenQual == "TA"] <- 1
+feature_CZ_2$KitchenQual[feature_CZ_2$KitchenQual == "Fa"] <- 0
+feature_CZ_2$KitchenQual <- as.numeric(feature_CZ_2$KitchenQual)
+```
+
+6. MSZoning: Identifies the general zoning classification of the sale.
+4 missing value-record missing From test: #1916, #2217, #2251, #2905
+```{r}
+feature_CZ$MSZoning[c(1916,2217,2251,2905)] = 'missing'
+feature_CZ_1$MSZoning[c(2217,2905)] = 'RL'
+feature_CZ_1$MSZoning[c(1916,2251)] = 'RM'
+
+feature_CZ_2$MSZoning[c(2217,2905)] = 'RL'
+feature_CZ_2$MSZoning[c(1916,2251)] = 'RM'
+```
+df.combined$MSZoning[c(2217, 2905)] = 'RL' MSSubClass=20
+df.combined$MSZoning[c(1916, 2251)] = 'RM' MSSubClass=30, 70
+
+7.LotFrontage: Linear feet of street connected to property, use neighbourhood to estimate and add the missing value 
+```{r}
+feature_CZ$LotFrontage[is.na(feature_CZ$LotFrontage)] <- rep('missing', 486)
+
+lot.by.nbrh <- feature_CZ_1[,c('Neighborhood','LotFrontage')] %>%
+  group_by(Neighborhood) %>%
+  summarise(median = median(LotFrontage, na.rm = TRUE))
+lot.by.nbrh
+idx = which(is.na(feature_CZ_1$LotFrontage))
+
+for (i in idx){
+  lot.median <- lot.by.nbrh[lot.by.nbrh == feature_CZ_1$Neighborhood[i],'median']
+  feature_CZ_1[i,'LotFrontage'] <- lot.median[[1]]
+}
+
+lot.by.nbrh <- feature_CZ_2[,c('Neighborhood','LotFrontage')] %>%
+  group_by(Neighborhood) %>%
+  summarise(median = median(LotFrontage, na.rm = TRUE))
+lot.by.nbrh
+idx = which(is.na(feature_CZ_2$LotFrontage))
+
+for (i in idx){
+  lot.median <- lot.by.nbrh[lot.by.nbrh == feature_CZ_2$Neighborhood[i],'median']
+  feature_CZ_2[i,'LotFrontage'] <- lot.median[[1]]
+}
+```
+
+8.MasVnrType: Masonry veneer type
+9.MasVnrArea: Masonry veneer area in square feet
+only one with MasVnrArea but not type(#2611, estimate type by similar area-Brkface)
+
+```{r}
+feature_CZ[(is.na(feature_CZ$MasVnrType)) | (is.na(feature_CZ$MasVnrArea)), c('MasVnrType', 'MasVnrArea')]#only one with MasVnrArea but not type(#2611, estimate type by similar area-Brkface)
+na.omit(feature_CZ[,c('MasVnrType','MasVnrArea')]) %>%
+  group_by(na.omit(MasVnrType)) %>%
+  summarise(MedianArea = median(MasVnrArea,na.rm = TRUE), counts = n()) %>%
+  arrange(MedianArea)
+na.omit(feature_CZ_1[,c('MasVnrType','MasVnrArea')]) %>%
+  group_by(na.omit(MasVnrType)) %>%
+  summarise(MedianArea = median(MasVnrArea,na.rm = TRUE), counts = n()) %>%
+  arrange(MedianArea)
+feature_CZ[2611, 'MasVnrType'] = 'missing'
+feature_CZ$MasVnrType[is.na(feature_CZ$MasVnrType)]<- rep('None', 23)
+feature_CZ$MasVnrArea[is.na(feature_CZ$MasVnrArea)]<- rep(0, 23)
+feature_CZ_1[2611, 'MasVnrType'] = 'BrkFace'
+feature_CZ_1$MasVnrType[is.na(feature_CZ_1$MasVnrType)]<- rep('None', 23)
+feature_CZ_1$MasVnrArea[is.na(feature_CZ_1$MasVnrArea)]<- rep(0, 23)
+
+feature_CZ_2[2611, 'MasVnrType'] = 'BrkFace'
+feature_CZ_2$MasVnrType[is.na(feature_CZ_2$MasVnrType)]<- rep('None', 23)
+feature_CZ_2$MasVnrArea[is.na(feature_CZ_2$MasVnrArea)]<- rep(0, 23)
+```
+
+10.LotArea, Saleprice, LotFrontage transformation, and question about whether MasVnrArea and LowQualFinSF should be transform because they contain lots of 0, just few of them have numbers, but these numbers are really far away from 0
+```{r}
+feature_CZ_2$LotArea <- log(feature_CZ_2$LotArea)
+#feature_CZ_2$MasVnrArea<-log(feature_CZ_2$MasVnrArea)
+feature_CZ_2$SalePrice<-log(feature_CZ_2$SalePrice)
+feature_CZ_2$LotFrontage<-log(feature_CZ_2$LotFrontage)
+#feature_CZ_2$LowQualFinSF<-log(feature_CZ_2$LowQualFinSF)
+```
+9. data standardization 
+```{r}
+feature_CZ_2$LotArea<-scale(feature_CZ_2$LotArea, center = TRUE, scale = TRUE)
+feature_CZ_2$SalePrice<-scale(feature_CZ_2$SalePrice, center = TRUE, scale = TRUE)
+feature_CZ_2$LotFrontage<-scale(feature_CZ_2$LotFrontage, center = TRUE, scale = TRUE)
+```
+
+```{r}
+#write.csv(dat,"/Users/chizhang/Desktop/Workbook1", row.names =TRUE, col.names =TRUE, quote =FALSE)
+```
+

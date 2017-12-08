@@ -1,0 +1,398 @@
+---
+title: "cleaning"
+author: "Jian Kang"
+date: "11/15/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Import data
+```{r}
+library(readr)
+feature_KJ <- read_csv("feature_KJ.csv")
+nrow(feature_KJ)
+```
+
+
+### EnclosedPorch
+**Enclosed porch area in square feet**
+```{r}
+sum(is.na(feature_KJ$EnclosedPorch))   # = 0
+sum(feature_KJ$EnclosedPorch == 0)   # = 2460
+```
+- No NA
+- 2460 (84.3%) == 0
+- To be removed or combined with other factors
+- Can be combined with "OpenPorchSF", "3SsnPorch", and "ScreenPorch"
+
+\n
+
+
+### ExterCond
+**Evaluates the present condition of the material on the exterior**
+5. Ex	Excellent
+4. Gd	Good
+3. TA	Average/Typical
+2. Fa	Fair
+1. Po	Poor
+```{r}
+sum(is.na(feature_KJ$ExterCond))   # = 0
+sum(feature_KJ$ExterCond == "NA")   # = 0
+
+feature_KJ$ExterCond[feature_KJ$ExterCond == "Ex"] <- 4
+feature_KJ$ExterCond[feature_KJ$ExterCond == "Gd"] <- 3
+feature_KJ$ExterCond[feature_KJ$ExterCond == "TA"] <- 2
+feature_KJ$ExterCond[feature_KJ$ExterCond == "Fa"] <- 1
+feature_KJ$ExterCond[feature_KJ$ExterCond == "Po"] <- 0
+feature_KJ$ExterCond <- as.numeric(feature_KJ$ExterCond)
+```
+
+- No NA
+- Ordinal values are set.
+- Transform into numeric data
+
+\n
+
+### ExterQual
+**Evaluates the quality of the material on the exterior**
+5. Ex	Excellent
+4. Gd	Good
+3. TA	Average/Typical
+2. Fa	Fair
+1. Po	Poor
+```{r}
+sum(is.na(feature_KJ$ExterQual))   # = 0
+sum(feature_KJ$ExterQual == "NA")   # = 0
+
+feature_KJ$ExterQual[feature_KJ$ExterQual == "Ex"] <- 4
+feature_KJ$ExterQual[feature_KJ$ExterQual == "Gd"] <- 3
+feature_KJ$ExterQual[feature_KJ$ExterQual == "TA"] <- 2
+feature_KJ$ExterQual[feature_KJ$ExterQual == "Fa"] <- 1
+feature_KJ$ExterQual[feature_KJ$ExterQual == "Po"] <- 0
+feature_KJ$ExterQual <- as.numeric(feature_KJ$ExterQual)
+
+cor.test(feature_KJ$ExterQual, feature_KJ$ExterCond)  #0.03
+```
+- No NA
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### Exterior1st
+**Exterior covering on house**
+- AsbShng	Asbestos Shingles
+- AsphShn	Asphalt Shingles
+- BrkComm	Brick Common
+- BrkFace	Brick Face
+- CBlock	Cinder Block
+- CemntBd	Cement Board
+- HdBoard	Hard Board
+- ImStucc	Imitation Stucco
+- MetalSd	Metal Siding
+- Other	Other
+- Plywood	Plywood
+- PreCast	PreCast	
+- Stone	Stone
+- Stucco	Stucco
+- VinylSd	Vinyl Siding
+- Wd Sdng	Wood Siding
+- WdShing	Wood Shingles
+
+```{r}
+#feature_KJ$Exterior1st <- as.character(feature_KJ$Exterior1st)
+sum(is.na(feature_KJ$Exterior1st))   # 1
+feature_KJ$Exterior1st[is.na(feature_KJ$Exterior1st)] <- "Other"
+```
+
+- Catergorical, need transform
+- 1 NA: "Other"
+
+
+### Exterior2nd
+**Exterior covering on house (if more than one material)**
+**Same with Exterior1st**
+```{r}
+sum(is.na(feature_KJ$Exterior2nd))   #1
+feature_KJ$Exterior2nd[is.na(feature_KJ$Exterior2nd)] <- "Other"
+```
+- Catergorical, need transform
+- 1 NA: "Other"
+- Combine: Exter1st + Exter2nd
+
+
+### Fence
+**Fence quality**
+- GdPrv	Good Privacy
+- MnPrv	Minimum Privacy
+- GdWo	Good Wood
+- MnWw	Minimum Wood/Wire
+- NA	No Fence
+
+```{r}
+sum(is.na(feature_KJ$Fence))   # 2348 -- "No Fence"
+
+feature_KJ$Fence[feature_KJ$Fence == "GdPrv"] <- 4
+feature_KJ$Fence[feature_KJ$Fence == "MnPrv"] <- 3
+feature_KJ$Fence[feature_KJ$Fence == "GdWo"] <- 2
+feature_KJ$Fence[feature_KJ$Fence == "MnWw"] <- 1
+feature_KJ$Fence[is.na(feature_KJ$Fence)] <- 0
+feature_KJ$Fence <- as.numeric(feature_KJ$Fence)
+```
+
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### FireplaceQu
+**Fireplace quality**
+- Ex	Excellent - Exceptional Masonry Fireplace
+- Gd	Good - Masonry Fireplace in main level
+- TA	Average - Prefabricated Fireplace in main living area or Masonry Fireplace in basement
+- Fa	Fair - Prefabricated Fireplace in basement
+- Po	Poor - Ben Franklin Stove
+- NA	No Fireplace
+
+```{r}
+sum(is.na(feature_KJ$FireplaceQu))   # 1420 -- "No Fireplace"
+
+feature_KJ$FireplaceQu[feature_KJ$FireplaceQu == "Ex"] <- 5
+feature_KJ$FireplaceQu[feature_KJ$FireplaceQu == "Gd"] <- 4
+feature_KJ$FireplaceQu[feature_KJ$FireplaceQu == "TA"] <- 3
+feature_KJ$FireplaceQu[feature_KJ$FireplaceQu == "Fa"] <- 2
+feature_KJ$FireplaceQu[feature_KJ$FireplaceQu == "Po"] <- 1
+feature_KJ$FireplaceQu[is.na(feature_KJ$FireplaceQu)] <- 0
+feature_KJ$FireplaceQu <- as.numeric(feature_KJ$FireplaceQu)
+```
+
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### Fireplaces
+**Number of fireplaces**
+
+```{r}
+sum(is.na(feature_KJ$Fireplaces)) #0
+feature_KJ$Fireplaces <- as.numeric(feature_KJ$Fireplaces)
+```
+- No NA
+- Ordinal: 0, 1, 2, 3, 4
+
+
+### Foundation
+**Type of foundation**
+- BrkTil	Brick & Tile
+- CBlock	Cinder Block
+- PConc	Poured Contrete	
+- Slab	Slab
+- Stone	Stone
+- Wood	Wood
+
+```{r}
+sum(is.na(feature_KJ$Foundation))   #0
+```
+
+- No NA
+- Categorical -- need transform
+
+
+### FullBath
+**Full bathrooms above grade**
+
+```{r}
+sum(is.na(feature_KJ$FullBath))   #0
+summary(feature_KJ$FullBath)
+```
+- No NA
+- Ordinal: 0, 1, 2, 3, 4
+- Can be combined with "HalfBath"
+
+### Functional
+**Home functionality (Assume typical unless deductions are warranted)**
+- Typ	Typical Functionality
+- Min1	Minor Deductions 1
+- Min2	Minor Deductions 2
+- Mod	Moderate Deductions
+- Maj1	Major Deductions 1
+- Maj2	Major Deductions 2
+- Sev	Severely Damaged
+- Sal	Salvage only
+
+```{r}
+sum(is.na(feature_KJ$Functional))   #2
+sum(feature_KJ$Functional == "NA")   # = 0
+
+feature_KJ$Functional[feature_KJ$Functional == "Typ"] <- 7
+feature_KJ$Functional[feature_KJ$Functional == "Min1"] <- 6
+feature_KJ$Functional[feature_KJ$Functional == "Min2"] <- 5
+feature_KJ$Functional[feature_KJ$Functional == "Mod"] <- 4
+feature_KJ$Functional[feature_KJ$Functional == "Maj1"] <- 3
+feature_KJ$Functional[feature_KJ$Functional == "Maj2"] <- 2
+feature_KJ$Functional[feature_KJ$Functional == "Sev"] <- 1
+feature_KJ$Functional[feature_KJ$Functional == "Sal"] <- 0
+
+feature_KJ$Functional <- as.numeric(feature_KJ$Functional)
+summary(feature_KJ$Functional)
+#Take the mode (also median)
+feature_KJ$Functional[is.na(feature_KJ$Functional)] <- 7
+```
+
+- 2 NA: mode (median)
+- Ordinal: 0, 1, 2, 3, 4, 5, 6, 7
+
+
+### GarageArea
+**Size of garage in square feet**
+
+```{r}
+sum(is.na(feature_KJ$GarageArea))   #1
+summary(feature_KJ$GarageArea)
+feature_KJ$GarageArea[is.na(feature_KJ$GarageArea)] <- 480
+```
+
+- 1 NA: median
+- Can be combined with "GarageCars"
+
+
+### GarageCars
+**Size of garage in car capacity**
+
+```{r}
+sum(is.na(feature_KJ$GarageCars))   #1
+summary(feature_KJ$GarageCars)
+feature_KJ$GarageCars[is.na(feature_KJ$GarageCars)] <- 2
+
+cor.test(feature_KJ$GarageCars, feature_KJ$GarageArea)  #0.8896894
+```
+
+- 1 NA: median
+- Can be removed, and keep "GarageArea" instead.
+
+
+### GarageCond
+**Garage condition**
+5. Ex	Excellent
+4. Gd	Good
+3. TA	Average/Typical
+2. Fa	Fair
+1. Po	Poor
+0. NA No Garage
+```{r}
+feature_KJ$GarageCond[feature_KJ$GarageCond == "Ex"] <- 5
+feature_KJ$GarageCond[feature_KJ$GarageCond == "Gd"] <- 4
+feature_KJ$GarageCond[feature_KJ$GarageCond == "TA"] <- 3
+feature_KJ$GarageCond[feature_KJ$GarageCond == "Fa"] <- 2
+feature_KJ$GarageCond[feature_KJ$GarageCond == "Po"] <- 1
+feature_KJ$GarageCond[is.na(feature_KJ$GarageCond)] <- 0
+feature_KJ$GarageCond <- as.numeric(feature_KJ$GarageCond)
+```
+
+- Can be removed, and keep "GarageQual" instead.
+
+
+### GarageFinish
+**Interior finish of the garage**
+3. Fin	Finished
+2. RFn	Rough Finished	
+1. Unf	Unfinished
+0. NA	No Garage
+```{r}
+sum(is.na(feature_KJ$GarageFinish))   #159
+feature_KJ$GarageFinish[feature_KJ$GarageFinish == "Fin"] <- 3
+feature_KJ$GarageFinish[feature_KJ$GarageFinish == "RFn"] <- 2
+feature_KJ$GarageFinish[feature_KJ$GarageFinish == "Unf"] <- 1
+feature_KJ$GarageFinish[is.na(feature_KJ$GarageFinish)] <- 0
+feature_KJ$GarageFinish <- as.numeric(feature_KJ$GarageFinish)
+
+cor.test(feature_KJ$GarageFinish, feature_KJ$GarageCond)  #0.48
+```
+
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### GarageQual
+5. Ex	Excellent
+4. Gd	Good
+3. TA	Average/Typical
+2. Fa	Fair
+1. Po	Poor
+0. NA	No Garage
+```{r}
+feature_KJ$GarageQual[feature_KJ$GarageQual == "Ex"] <- 5
+feature_KJ$GarageQual[feature_KJ$GarageQual == "Gd"] <- 4
+feature_KJ$GarageQual[feature_KJ$GarageQual == "TA"] <- 3
+feature_KJ$GarageQual[feature_KJ$GarageQual == "Fa"] <- 2
+feature_KJ$GarageQual[feature_KJ$GarageQual == "Po"] <- 1
+feature_KJ$GarageQual[is.na(feature_KJ$GarageQual)] <- 0
+feature_KJ$GarageQual <- as.numeric(feature_KJ$GarageQual)
+
+cor.test(feature_KJ$GarageQual, feature_KJ$GarageCond)   #0.9466563
+
+summary(lm(SalePrice ~ GarageCond, data = feature_KJ))
+summary(lm(SalePrice ~ GarageQual, data = feature_KJ))
+```
+
+- NA is meaningful
+- Ordinal values are set.
+- Transform into numeric data
+
+
+### GarageType
+**Garage location**
+- 2Types	More than one type of garage
+- Attchd	Attached to home
+- Basment	Basement Garage
+- BuiltIn	Built-In (Garage part of house - typically has room above garage)
+- CarPort	Car Port
+- Detchd	Detached from home
+- NA	No Garage
+
+```{r}
+feature_KJ$GarageType[is.na(feature_KJ$GarageType)] <- "NoGarage"
+sum(is.na(feature_KJ$GarageType))
+```
+
+- Categorical (not ordinal by plot)
+- Need transformation
+
+
+### GarageYrBlt
+**Year garage was built**
+```{r}
+sum(is.na(feature_KJ$GarageYrBlt))  #159
+feature_KJ$GarageYrBlt[is.na(feature_KJ$GarageYrBlt)] <- 1894
+feature_KJ$GarageYrBlt[feature_KJ$GarageYrBlt == 2207] <- 2007
+```
+- 159 NA: Min-1 = 1894
+- One outlier: 2207! Maybe a typo for "2007" ("YearBuilt" = 2006)
+- 
+
+### GrLivArea
+**Above grade (ground) living area square feet**
+```{r}
+sum(is.na(feature_KJ$GrLivArea))  #0
+```
+
+- No NA
+- Numeric
+
+
+### HalfBath
+**Half baths above grade**
+
+```{r}
+sum(is.na(feature_KJ$HalfBath))  #0
+
+cor.test(feature_KJ$HalfBath, feature_KJ$FullBath)  #0.16
+```
+
+- No NA
+- Ordinal: 0, 1, 2
+- Combine with "FullBath" ++ ??

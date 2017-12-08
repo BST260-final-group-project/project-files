@@ -1,0 +1,333 @@
+---
+title: "cleaning-Jiajing"
+author: "Jiajing"
+date: "11/16/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## import data
+
+
+```{r}
+library(readr)
+feature <- read_csv("feature_JJC.csv")
+nrow(feature)
+dim(feature)
+```
+
+##"SalePrice"   
+```{r}
+sum(is.na(feature$SalePrice)) 
+summary(feature$SalePrice)
+#csv1
+feature1 = feature
+#csv2
+feature2 = feature1
+```
+
+##"1stFlrSF"  
+First Floor square feet
+```{r}
+sum(is.na(feature$"1stFlrSF")) 
+summary(feature$"1stFlrSF")
+class(feature$"1stFlrSF")
+feature1$"1stFlrSF" = as.numeric(feature$"1stFlrSF")
+feature2$"1stFlrSF" = as.numeric(feature2$"1stFlrSF")
+```
+-no NA
+-good
+
+
+##"2ndFlrSF"  
+Second floor square feet
+```{r}
+sum(is.na(feature$"2ndFlrSF")) 
+summary(feature$"2ndFlrSF")
+sum(feature$"2ndFlrSF" == 0) 
+feature1$"2ndFlrSF" = as.numeric(feature$"2ndFlrSF")
+feature2$"2ndFlrSF" = as.numeric(feature2$"2ndFlrSF")
+
+```
+-no NA
+-1668 0
+
+##"3SsnPorch"  
+Three season porch area in square feet
+```{r}
+sum(is.na(feature$"3SsnPorch")) 
+sum(feature$"3SsnPorch" == 0) 
+#csv1
+feature1$"3SsnPorch"= as.numeric(feature1$"3SsnPorch")
+feature2$"3SsnPorch"= as.numeric(feature2$"3SsnPorch")
+```
+
+-no NA
+-2882 0
+
+
+##"Alley"       
+Type of alley access to property
+
+       Grvl	Gravel
+       Pave	Paved
+       NA 	No alley access
+		
+```{r}
+sum(is.na(feature$Alley)) 
+#csv2
+```
+- 2721 Missing, which means No alley access, should be divided to categories
+- good
+
+##"BedroomAbvGr"
+```{r}
+sum(is.na(feature$BedroomAbvGr)) 
+sum(feature$"BedroomAbvGr" == 0) 
+class(feature$BedroomAbvGr)
+feature1$BedroomAbvGr = as.numeric(feature1$BedroomAbvGr)
+feature2$BedroomAbvGr = as.numeric(feature2$BedroomAbvGr)
+```
+- no NA
+- good
+
+##"BldgType"  
+ Type of dwelling
+		
+       1Fam	Single-family Detached	
+       2FmCon	Two-family Conversion; originally built as one-family dwelling
+       Duplx	Duplex
+       TwnhsE	Townhouse End Unit
+       TwnhsI	Townhouse Inside Unit
+```{r}
+sum(is.na(feature$BldgType)) 
+summary(feature$"BldgType") 
+```
+-no NA
+-catagorical data
+
+##"BsmtCond"     
+Evaluates the general condition of the basement
+
+       Ex	Excellent
+       Gd	Good
+       TA	Typical - slight dampness allowed
+       Fa	Fair - dampness or some cracking or settling
+       Po	Poor - Severe cracking, settling, or wetness
+       NA	No Basement
+```{r}
+sum(is.na(feature$BsmtCond)) 
+```
+- NA is no Basement.
+- Catagory data
+
+##"BsmtExposure" 
+
+Refers to walkout or garden level walls
+
+       Gd	Good Exposure
+       Av	Average Exposure (split levels or foyers typically score average or above)	
+       Mn	Mimimum Exposure
+       No	No Exposure
+       NA	No Basement
+```{r}
+sum(is.na(feature$BsmtExposure)) 
+```
+- NA is no Basement.
+- Catagory data
+
+
+##"BsmtFinSF1"   
+Type 1 finished square feet
+```{r}
+sum(is.na(feature$BsmtFinSF1)) 
+summary(feature$"BsmtFinSF1") 
+#csv1
+feature1$"BsmtFinSF1"[is.na(feature$"BsmtFinSF1")]="missing"
+summary(feature1$"BsmtFinSF1") 
+sum(is.na(feature1$BsmtFinSF1)) 
+
+feature2$"BsmtFinSF1"[is.na(feature$"BsmtFinSF1")] = 441.4
+```
+- Only 1 NA 
+- replace with mean in the csv2
+
+##"BsmtFinSF2"   
+Type 2 finished square feet
+
+```{r}
+sum(is.na(feature$BsmtFinSF2)) 
+```
+- NA is no Basement.
+- Catagory data
+
+##"BsmtFinType1"
+Rating of basement finished area
+
+       GLQ	Good Living Quarters
+       ALQ	Average Living Quarters
+       BLQ	Below Average Living Quarters	
+       Rec	Average Rec Room
+       LwQ	Low Quality
+       Unf	Unfinshed
+       NA	No Basement
+```{r}
+sum(is.na(feature$BsmtFinType1)) 
+```
+- NA is no Basement.
+- Catagory data
+
+##"BsmtFinType2"
+Rating of basement finished area (if multiple types)
+
+       GLQ	Good Living Quarters
+       ALQ	Average Living Quarters
+       BLQ	Below Average Living Quarters	
+       Rec	Average Rec Room
+       LwQ	Low Quality
+       Unf	Unfinshed
+       NA	No Basement
+```{r}
+sum(is.na(feature$BsmtFinType2)) 
+```
+- NA is no Basement.
+- Catagory data
+
+##"BsmtFullBath" 
+ Basement full bathrooms
+```{r}
+sum(is.na(feature$BsmtFullBath)) 
+class((feature$BsmtFullBath))
+#csv1
+feature1$BsmtFullBath[is.na(feature$BsmtFullBath)]="missing"
+summary(feature1$BsmtFullBath) 
+sum(is.na(feature1$BsmtFullBath)) 
+#csv2
+feature2$"BsmtFullBath"[is.na(feature$"BsmtFullBath")] = 0
+```
+- Only 2 NA
+- replace with 0
+
+##"BsmtHalfBath" 
+Basement half bathrooms
+```{r}
+sum(is.na(feature$BsmtHalfBath)) 
+class(feature$BsmtHalfBath)
+feature1$BsmtHalfBath[is.na(feature$BsmtHalfBath)]="missing"
+summary(feature1$BsmtHalfBath) 
+sum(is.na(feature1$BsmtHalfBath)) 
+#csv2
+feature2$BsmtHalfBath[is.na(feature$BsmtHalfBath)] = 0
+```
+- Only 2 NA
+
+
+##"BsmtQual"     
+Evaluates the height of the basement
+
+       Ex	Excellent (100+ inches)	
+       Gd	Good (90-99 inches)
+       TA	Typical (80-89 inches)
+       Fa	Fair (70-79 inches)
+       Po	Poor (<70 inches
+       NA	No Basement
+```{r}
+sum(is.na(feature$BsmtQual)) 
+```
+- NA is no Basement.
+- Catagory data
+
+
+##"BsmtUnfSF"  
+Unfinished square feet of basement area
+```{r}
+sum(is.na(feature$BsmtUnfSF)) 
+class(feature$BsmtUnfSF)
+feature1$BsmtUnfSF = as.numeric(feature1$BsmtUnfSF)
+feature1$BsmtUnfSF[is.na(feature$BsmtUnfSF)]="missing"
+summary(feature1$BsmtUnfSF) 
+sum(is.na(feature1$BsmtUnfSF)) 
+#csv2
+feature2$BsmtUnfSF[is.na(feature$BsmtUnfSF)] =560.8
+
+```
+- only 1 NA
+
+
+##"CentralAir"   
+```{r}
+sum(is.na(feature$CentralAir)) 
+```
+- no NA
+- good
+
+##"Condition1" 
+Proximity to various conditions
+	
+       Artery	Adjacent to arterial street
+       Feedr	Adjacent to feeder street	
+       Norm	Normal	
+       RRNn	Within 200' of North-South Railroad
+       RRAn	Adjacent to North-South Railroad
+       PosN	Near positive off-site feature--park, greenbelt, etc.
+       PosA	Adjacent to postive off-site feature
+       RRNe	Within 200' of East-West Railroad
+       RRAe	Adjacent to East-West Railroad
+```{r}
+sum(is.na(feature$Condition1)) 
+summary(feature$"Condition1") 
+```
+- no NA
+- good
+
+##"Condition2"   
+Proximity to various conditions (if more than one is present)
+		
+       Artery	Adjacent to arterial street
+       Feedr	Adjacent to feeder street	
+       Norm	Normal	
+       RRNn	Within 200' of North-South Railroad
+       RRAn	Adjacent to North-South Railroad
+       PosN	Near positive off-site feature--park, greenbelt, etc.
+       PosA	Adjacent to postive off-site feature
+       RRNe	Within 200' of East-West Railroad
+       RRAe	Adjacent to East-West Railroad
+```{r}
+sum(is.na(feature$Condition2)) 
+```
+- no NA
+- good
+
+
+##"Electrical" 
+Electrical system
+
+       SBrkr	Standard Circuit Breakers & Romex
+       FuseA	Fuse Box over 60 AMP and all Romex wiring (Average)	
+       FuseF	60 AMP Fuse Box and mostly Romex wiring (Fair)
+       FuseP	60 AMP Fuse Box and mostly knob & tube wiring (poor)
+       Mix	Mixed
+```{r}
+sum(is.na(feature$Electrical)) 
+class(feature$Electrical)
+#csv1
+feature1$Electrical[is.na(feature$Electrical)]="missing"
+summary(feature1$Electrical) 
+sum(is.na(feature1$Electrical)) 
+#csv2
+feature2$Electrical[is.na(feature$Electrical)] = "FuseA"
+
+```
+- only 1 NA
+- good
+
+
+#save
+```{r}
+write.csv(feature1,"feature_JJC_1.csv")
+write.csv(feature2,"feature_JJC_2.csv")
+```
+
